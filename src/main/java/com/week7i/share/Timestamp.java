@@ -1,5 +1,6 @@
 package com.week7i.share;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -22,12 +23,12 @@ import java.util.List;
 public class Timestamp {
 
     public static List arrive(String path) throws IOException, ParseException {
-        List rs=new ArrayList();
+        List result = new ArrayList();
         InputStream inputStream = new FileInputStream(path);
-        XSSFWorkbook hssfWorkbook = new XSSFWorkbook(inputStream);
-        List<List<String>> result = new ArrayList<List<String>>();
-        XSSFSheet xssfSheet = hssfWorkbook.getSheetAt(0);
-        //处理当前页，循环读取每一行
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+
+        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
+        //处理当前页，循环读取每一行x
         for (int rowNum = 1; rowNum <= xssfSheet.getLastRowNum(); rowNum++) {
             XSSFRow hssfRow = xssfSheet.getRow(rowNum);
             boolean b1 = false;//到达OVS
@@ -47,19 +48,20 @@ public class Timestamp {
             if (b1 && b2) {
                 XSSFCell aircraft = hssfRow.getCell(6);
                 String aircraftId = aircraft.toString();
-                rs.add(aircraftId);
-                //System.out.println(aircraftId);
+                JSONObject obj=new JSONObject();
+                obj.put("aircraftId",aircraftId);//飞机尾号
+                result.add(obj);
             }
         }
-        return rs;
+        return result;
     }
 
     public static List leave(String path) throws IOException, ParseException {
         List rs=new ArrayList();
         InputStream inputStream = new FileInputStream(path);
-        XSSFWorkbook hssfWorkbook = new XSSFWorkbook(inputStream);
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
         List<List<String>> result = new ArrayList<List<String>>();
-        XSSFSheet xssfSheet = hssfWorkbook.getSheetAt(0);
+        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
         //处理当前页，循环读取每一行
         for (int rowNum = 1; rowNum <= xssfSheet.getLastRowNum(); rowNum++) {
             XSSFRow hssfRow = xssfSheet.getRow(rowNum);
@@ -80,8 +82,14 @@ public class Timestamp {
             if (b1 && b2) {
                 XSSFCell aircraft = hssfRow.getCell(6);
                 String aircraftId = aircraft.toString();
-                rs.add(aircraftId);
-                //System.out.println(aircraftId);
+
+                XSSFCell schedule = hssfRow.getCell(0);
+                String scheduleId = schedule.toString();
+
+                JSONObject obj=new JSONObject();
+                obj.put("scheduleId",scheduleId);//航班编号
+                obj.put("aircraftId",aircraftId);//飞机尾号
+                rs.add(obj);
             }
         }
         return rs;
@@ -94,11 +102,14 @@ public class Timestamp {
         List arriveList=arrive(path);
         List leaveList=leave(path);
         for(int i=0;i<arriveList.size();i++){
-            String arriveId=arriveList.get(i).toString();
+            JSONObject arriveJson= (JSONObject) arriveList.get(i);
+            String arriveId=arriveJson.getString("aircraftId");
             for(int j=0;j<leaveList.size();j++){
-                String leaveId=leaveList.get(j).toString();
+                JSONObject leavejson= (JSONObject) leaveList.get(j);
+                String leaveId=leavejson.getString("aircraftId");
                 if(arriveId.equals(leaveId)){
-                    rs.add(leaveId);
+                    System.out.println(leavejson);
+                    rs.add(leavejson);
                     break;
                 }
             }
