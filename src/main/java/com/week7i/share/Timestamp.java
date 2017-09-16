@@ -20,43 +20,45 @@ import java.util.Date;
 import java.util.List;
 
 public class Timestamp {
-    public static List<List<String>> read(String path) throws IOException, ParseException {
+
+    public static List read(String path) throws IOException, ParseException {
+        List rs=new ArrayList();
         InputStream inputStream = new FileInputStream(path);
         XSSFWorkbook hssfWorkbook = new XSSFWorkbook(inputStream);
         List<List<String>> result = new ArrayList<List<String>>();
-        XSSFSheet hssfSheet = hssfWorkbook.getSheetAt(0);
+        XSSFSheet xssfSheet = hssfWorkbook.getSheetAt(0);
         //处理当前页，循环读取每一行
-        for (int rowNum = 1; rowNum <= hssfSheet.getLastRowNum(); rowNum++) {
-            XSSFRow hssfRow = hssfSheet.getRow(rowNum);
-            int minColIndex = hssfRow.getFirstCellNum();
-            int maxColIndex = hssfRow.getLastCellNum();
-            List<String> rowList = new ArrayList<String>();
-            //遍历该行，获取处理每个cell元素
-            for (int colIndex = minColIndex; colIndex < maxColIndex; colIndex++) {
-                XSSFCell cell = hssfRow.getCell(colIndex);
-                if (cell == null) {
-                    continue;
-                }
-                String cellData = cell.toString();
-                boolean b1=false;
-                if (colIndex == 4 && cellData.equals("OVS")==false) {
-                    break;
-                }
-                if(colIndex==12){
-                    System.out.println(cellData);
-                }
-                rowList.add(cellData);
+        for (int rowNum = 1; rowNum <= xssfSheet.getLastRowNum(); rowNum++) {
+            XSSFRow hssfRow = xssfSheet.getRow(rowNum);
+            boolean b1 = false;//到达OVS
+            XSSFCell destination = hssfRow.getCell(4);
+            String cellData = destination.toString();
+            if (cellData.equals("OVS")) {
+                b1 = true;
             }
-            result.add(rowList);
+            boolean b2 = false;//于18:00之前到达OVS
+            XSSFCell endTime = hssfRow.getCell(2);
+            String endTimeString = endTime.toString();
+            BigDecimal bd = new BigDecimal(endTimeString);
+            Long l = Long.parseLong(bd.toPlainString());
+            if (l < 1461348000) {
+                b2 = true;
+            }
+            if (b1 && b2) {
+                XSSFCell aircraft = hssfRow.getCell(6);
+                String aircraftId = aircraft.toString();
+                rs.add(aircraftId);
+                System.out.println(aircraftId);
+            }
         }
-        return result;
+        return rs;
     }
 
     public static void main(String[] args) throws IOException, ParseException {
         //String path="Users/jiangxingqi/IdeaProjects/ExcelUtil/doc/huizong.xlsx";
         String path = "doc/calculate.xlsx";
-        List<List<String>> result = read(path);
-        //System.out.println(result);
+        List rs=read(path);
+        System.out.println(rs.size());
     }
 }
 
