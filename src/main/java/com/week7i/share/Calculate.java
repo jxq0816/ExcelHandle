@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Calculate {
-    private static int lastRowNum=98;
     private static Long timestamp2100=1461358800L;//21：00的时间戳
     private static Long timestamp1800=1461348000L;//18：00的时间戳
     private static Long timestamp2145= timestamp2100+45*60;//21：45的时间戳,前一航班到达时间与后一航班起飞时间之间的最小间隔时间为45分钟
@@ -64,7 +63,7 @@ public class Calculate {
      * @throws IOException
      * @throws ParseException
      */
-    public static List leave(String path) throws IOException, ParseException {
+    public static List leave(String path,int lastRowNum) throws IOException, ParseException {
         List rs=new ArrayList();
         InputStream inputStream = new FileInputStream(path);
         XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
@@ -86,7 +85,7 @@ public class Calculate {
             String startTimeString = startTime.toString();
             BigDecimal bd = new BigDecimal(startTimeString);
             Long l = Long.parseLong(bd.toPlainString());
-            if (l > 1461358800) {
+            if (l > timestamp2100) {
                 b2 = true;
             }
             if (b1 && b2) {
@@ -111,7 +110,7 @@ public class Calculate {
         Long  startTimeLong= Long.parseLong(startTimeBD.toPlainString());
 
         JSONObject obj=new JSONObject();
-        obj.put("rowNum",rowNum);
+        obj.put("rowNum",rowNum+1);
         obj.put("scheduleIdLong",scheduleIdLong);//航班编号
         obj.put("aircraftId",aircraftId);//飞机尾号
         obj.put("startTimeLong",startTimeLong);//飞机尾号
@@ -128,7 +127,7 @@ public class Calculate {
     public static List available(String path,int lastRowNum) throws IOException, ParseException {
         List rs=new ArrayList();
         List arriveList=arrive(path,lastRowNum);
-        List leaveList=leave(path);
+        List leaveList=leave(path,lastRowNum);
         for(int i=0;i<arriveList.size();i++){
             JSONObject arriveJson= (JSONObject) arriveList.get(i);
             String arriveId=arriveJson.getString("aircraftId");//OVS机场有飞机arriveId停留
@@ -136,7 +135,7 @@ public class Calculate {
                 JSONObject leavejson= (JSONObject) leaveList.get(j);
                 String leaveId=leavejson.getString("aircraftId");//飞机arriveId有待飞行的任务
                 if(arriveId.equals(leaveId)){
-                    System.out.println(leavejson);
+                    //System.out.println(leavejson);
                     rs.add(leavejson);
                     break;
                 }
@@ -187,6 +186,49 @@ public class Calculate {
         //System.out.println("延误时间:"+min+"秒");
         System.out.println("最小延误时间:"+hour+"小时"+minus+"分钟"+modSecond+"秒");
         return replaceSchedule;
+    }
+    /**
+     * 受到影响的航班集合
+     * @param path
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
+    public static List delay(String path,int lastRowNum) throws IOException, ParseException {
+        List result = new ArrayList();
+        InputStream inputStream = new FileInputStream(path);
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+
+        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
+
+        //处理当前页，循环读取每一行
+        for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
+            XSSFRow xssfRow = xssfSheet.getRow(rowNum);
+            XSSFCell destination = xssfRow.getCell(4);//到达机场
+            String cellData = destination.toString();
+            if (cellData.equals("OVS")) {
+                XSSFCell endTime = xssfRow.getCell(2);//到达时间
+                String endTimeString = endTime.toString();
+                BigDecimal endTimeBD = new BigDecimal(endTimeString);
+                Long l = Long.parseLong(endTimeBD.toPlainString());
+                if (l>timestamp1800 && l<timestamp2100) {
+                    result = addToResult(xssfRow, rowNum, result);
+                }
+                continue;
+            }
+            XSSFCell leave = xssfRow.getCell(3);//起飞机场
+            String leaveCellData = leave.toString();
+            if (leaveCellData.equals("OVS")) {
+                XSSFCell startTime = xssfRow.getCell(1);//起飞时间
+                String startTimeString = startTime.toString();
+                BigDecimal bd = new BigDecimal(startTimeString);
+                Long leaveTimeLong = Long.parseLong(bd.toPlainString());
+                if (leaveTimeLong>timestamp1800 && leaveTimeLong < timestamp2100) {
+                    result = addToResult(xssfRow, rowNum, result);
+                }
+            }
+        }
+        return result;
     }
 }
 

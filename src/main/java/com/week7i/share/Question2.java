@@ -21,6 +21,18 @@ public class Question2 {
 
     public static void main(String[] args) throws IOException, ParseException {
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        for(int i=0;i<availableList.size();i++){
+            JSONObject object= (JSONObject) availableList.get(i);
+            System.out.println(object);
+        }
+        System.out.println(availableList.size());
+
+        List delayList=Calculate.delay(path,lastRowNum);
+        for(int i=0;i<delayList.size();i++){
+            JSONObject object= (JSONObject) delayList.get(i);
+            System.out.println(object);
+        }
+        System.out.println(delayList.size());
     }
 }
 
