@@ -21,9 +21,7 @@ public class ReadExcel {
         //循环每一页，并处理当前循环页
         for (int i = 0; i < hssfWorkbook.getNumberOfSheets(); i++) {
             XSSFSheet hssfSheet = hssfWorkbook.getSheetAt(i);
-            if (hssfSheet == null) {
-                continue;
-            }
+
             //处理表头
             XSSFRow titleRow = hssfSheet.getRow(0);
             int minIndex = titleRow.getFirstCellNum();
