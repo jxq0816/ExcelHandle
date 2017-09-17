@@ -1,26 +1,20 @@
 package com.week7i.share;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class Timestamp {
+public class Calculate {
     private static int lastRowNum=98;
     private static Long timestamp2100=1461358800L;//21：00的时间戳
     private static Long timestamp1800=1461348000L;//18：00的时间戳
@@ -32,7 +26,7 @@ public class Timestamp {
      * @throws IOException
      * @throws ParseException
      */
-    public static List arrive(String path) throws IOException, ParseException {
+    public static List arrive(String path,int lastRowNum) throws IOException, ParseException {
         List result = new ArrayList();
         InputStream inputStream = new FileInputStream(path);
         XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
@@ -131,11 +125,9 @@ public class Timestamp {
      * @throws IOException
      * @throws ParseException
      */
-    public static List available() throws IOException, ParseException {
-        //String path="Users/jiangxingqi/IdeaProjects/ExcelUtil/doc/huizong.xlsx";
-        String path = "doc/calculate.xlsx";
+    public static List available(String path,int lastRowNum) throws IOException, ParseException {
         List rs=new ArrayList();
-        List arriveList=arrive(path);
+        List arriveList=arrive(path,lastRowNum);
         List leaveList=leave(path);
         for(int i=0;i<arriveList.size();i++){
             JSONObject arriveJson= (JSONObject) arriveList.get(i);
@@ -152,7 +144,6 @@ public class Timestamp {
         }
         return rs;
     }
-
     /**
      * 从可供替换的航班集合中选择一个延时最小的航班作为替换
      * @param availableList
@@ -196,35 +187,6 @@ public class Timestamp {
         //System.out.println("延误时间:"+min+"秒");
         System.out.println("最小延误时间:"+hour+"小时"+minus+"分钟"+modSecond+"秒");
         return replaceSchedule;
-    }
-    public static void main(String[] args) throws IOException, ParseException {
-
-        List availableList=available();//获得可供替换的航班集合,共计7个
-        //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
-        long startTimeStamp=1461358200L;
-        System.out.println("174773460航班 飞机尾号14098置换");
-        JSONObject index=judge(availableList,startTimeStamp);
-        availableList.remove(index);
-        //处理42行数据，即174774204次航班,起飞时间戳为1461359100,飞机尾号44098
-        System.out.println("174774204航班 飞机尾号44098置换");
-        startTimeStamp=1461359100L;
-        index=judge(availableList,startTimeStamp);
-        availableList.remove(index);
-        //处理51行数据，即174773432次航班,起飞时间戳为1461358200,飞机尾号64098
-        System.out.println("174773432航班 飞机尾号64098置换");
-        startTimeStamp=1461358200L;
-        index=judge(availableList,startTimeStamp);
-        availableList.remove(index);
-        //处理59行数据，即174774076次航班,起飞时间戳为1461355500,飞机尾号15098
-        System.out.println("174774076航班 飞机尾号15098置换");
-        startTimeStamp=1461355500L;
-        index=judge(availableList,startTimeStamp);
-        availableList.remove(index);
-        //处理69行数据，即174774048次航班,起飞时间戳为1461354300,飞机尾号85098
-        System.out.println("174774048航班 飞机尾号85098置换");
-        startTimeStamp=1461354300L;
-        index=judge(availableList,startTimeStamp);
-        availableList.remove(index);
     }
 }
 
