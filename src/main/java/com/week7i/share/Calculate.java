@@ -39,18 +39,13 @@ public class Calculate {
             XSSFCell destination = xssfRow.getCell(4);
             String cellData = destination.toString();
             if (cellData.equals("OVS")) {
-                b1 = true;
-            }
-            boolean b2 = false;//于18:00之前到达OVS
-            XSSFCell endTime = xssfRow.getCell(2);
-            String endTimeString = endTime.toString();
-            BigDecimal bd = new BigDecimal(endTimeString);
-            Long l = Long.parseLong(bd.toPlainString());
-            if (l < timestamp1800) {
-                b2 = true;
-            }
-            if (b1 && b2) {
-                result = addToResult(xssfRow, rowNum, result);
+                XSSFCell endTime = xssfRow.getCell(2);
+                String endTimeString = endTime.toString();
+                BigDecimal bd = new BigDecimal(endTimeString);
+                Long l = Long.parseLong(bd.toPlainString());
+                if (l < timestamp1800) {
+                    result = addAccessToResult(xssfRow, rowNum, result);
+                }
             }
         }
         return result;
@@ -78,24 +73,26 @@ public class Calculate {
                 continue;
             }
             if (cellData.equals("OVS")) {
-                b1 = true;
-            }
-            boolean b2 = false;//于21:00之后出发
-            XSSFCell startTime = xssfRow.getCell(1);
-            String startTimeString = startTime.toString();
-            BigDecimal bd = new BigDecimal(startTimeString);
-            Long l = Long.parseLong(bd.toPlainString());
-            if (l > timestamp2100) {
-                b2 = true;
-            }
-            if (b1 && b2) {
-                rs = addToResult(xssfRow, rowNum, rs);
+                XSSFCell startTime = xssfRow.getCell(1);
+                String startTimeString = startTime.toString();
+                BigDecimal bd = new BigDecimal(startTimeString);
+                Long l = Long.parseLong(bd.toPlainString());
+                if (l > timestamp2100) {
+                    rs = addAccessToResult(xssfRow, rowNum, rs);
+                }
             }
         }
         return rs;
     }
 
-    public static List addToResult(XSSFRow xssfRow,int rowNum,List rs){
+    /**
+     * 添加航班进入可供替换的集合
+     * @param xssfRow
+     * @param rowNum
+     * @param rs
+     * @return
+     */
+    public static List addAccessToResult(XSSFRow xssfRow,int rowNum,List rs){
         XSSFCell aircraft = xssfRow.getCell(6);//飞机尾号
         String aircraftId = aircraft.toString();
 
@@ -122,6 +119,8 @@ public class Calculate {
         return rs;
     }
 
+
+
     /**
      * 获得可供替换的航班集合
      * @return
@@ -130,8 +129,8 @@ public class Calculate {
      */
     public static List available(String path,int lastRowNum) throws IOException, ParseException {
         List rs=new ArrayList();
-        List arriveList=arrive(path,lastRowNum);
-        List leaveList=leave(path,lastRowNum);
+        List arriveList=arrive(path,lastRowNum);//已到达OVS机场
+        List leaveList=leave(path,lastRowNum);//有要飞行的任务
         for(int i=0;i<arriveList.size();i++){
             JSONObject arriveJson= (JSONObject) arriveList.get(i);
             String arriveId=arriveJson.getString("aircraftId");//OVS机场有飞机arriveId停留
@@ -173,7 +172,8 @@ public class Calculate {
                 BigDecimal endTimeBD = new BigDecimal(endTimeString);
                 Long l = Long.parseLong(endTimeBD.toPlainString());
                 if (l>timestamp1800 && l<timestamp2100) {
-                    result = addToResult(xssfRow, rowNum, result);
+                    Long delayMinute=(timestamp2100-l)/60;//延迟时间,以分钟为单位
+                    result = addDelayToResult(xssfRow, rowNum, delayMinute,result);
                 }
                 continue;
             }
@@ -185,11 +185,47 @@ public class Calculate {
                 BigDecimal bd = new BigDecimal(startTimeString);
                 Long leaveTimeLong = Long.parseLong(bd.toPlainString());
                 if (leaveTimeLong>timestamp1800 && leaveTimeLong < timestamp2100) {
-                    result = addToResult(xssfRow, rowNum, result);
+                    Long delayMinute=(timestamp2100-leaveTimeLong)/60;//延迟时间,以分钟为单位
+                    result = addDelayToResult(xssfRow, rowNum, delayMinute,result);
                 }
             }
         }
         return result;
+    }
+    /**
+     * 添加受到暴风雪影响的航班
+     * @param xssfRow
+     * @param rowNum
+     * @param delayMinute
+     * @param rs
+     * @return
+     */
+    public static List addDelayToResult(XSSFRow xssfRow,int rowNum,Long delayMinute,List rs){
+        XSSFCell aircraft = xssfRow.getCell(6);//飞机尾号
+        String aircraftId = aircraft.toString();
+
+        XSSFCell aircraftTypeCell = xssfRow.getCell(5);//飞机型号
+        String aircraftType = aircraftTypeCell.toString();
+
+        XSSFCell schedule = xssfRow.getCell(0);//航班编号
+        String scheduleId = schedule.toString();
+        BigDecimal bigDecimal = new BigDecimal(scheduleId);
+        Long  scheduleIdLong= Long.parseLong(bigDecimal.toPlainString());
+
+        XSSFCell startTime = xssfRow.getCell(1);//起飞时间
+        String startTimeStr = startTime.toString();
+        BigDecimal startTimeBD = new BigDecimal(startTimeStr);
+        Long  startTimeLong= Long.parseLong(startTimeBD.toPlainString());
+
+        JSONObject obj=new JSONObject();
+        obj.put("rowNum",rowNum+1);
+        obj.put("scheduleIdLong",scheduleIdLong);//航班编号
+        obj.put("aircraftId",aircraftId);//飞机尾号
+        obj.put("startTimeLong",startTimeLong);//飞机尾号
+        obj.put("aircraftType",aircraftType);//飞机尾号
+        obj.put("delayMinute",delayMinute);//飞机尾号
+        rs.add(obj);
+        return rs;
     }
 }
 

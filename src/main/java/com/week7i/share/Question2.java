@@ -19,7 +19,7 @@ public class Question2 {
     private static String path = "doc/Question2.xlsx";
 
     /**
-     * 获取可供替换的航班集合，延迟的航班集合
+     * 获取可供替换的航班集合，延迟的航班集合,并计算延迟时间
      * @throws IOException
      * @throws ParseException
      */
@@ -78,18 +78,13 @@ public class Question2 {
         JSONObject replaceSchedule=(JSONObject)availableList.get(index);//选择延时最小的航班作为替换
         String aircraftId=replaceSchedule.getString("aircraftId");
         System.out.print("飞机尾号"+aircraftId+",");
-       /* Long hour= (min/(60*60));
-        Long mod=min%(60*60);//余数
-        Long minus=mod/60;//分钟
-        Long modSecond=mod%(60);
-        System.out.println("最小延误时间:"+hour+"小时"+minus+"分钟"+modSecond+"秒");*/
-
         System.out.println("两架飞机延误时间总和为:"+min/60+"分钟");
 
         return replaceSchedule;
     }
 
     public static void main(String[] args) throws IOException, ParseException {
+        step1();
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
         //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
         System.out.print("174773460航班 飞机尾号14098置换");

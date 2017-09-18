@@ -70,7 +70,14 @@ public class Question1 {
         return replaceSchedule;
     }
 
+
+
     public static void main(String[] args) throws IOException, ParseException {
+        List delayList=Calculate.delay(path,lastRowNum);
+        for(int i=0;i<delayList.size();i++){
+            JSONObject object= (JSONObject) delayList.get(i);
+            System.out.println(object);
+        }
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
         //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
         long startTimeStamp=1461358200L;
