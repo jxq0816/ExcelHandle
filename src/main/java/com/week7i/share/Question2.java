@@ -18,7 +18,7 @@ public class Question2 {
     private static String path = "doc/Question2.xlsx";
 
     /**
-     * 获取可供替换的航班集合，延迟的航班集合,并计算延迟时间
+     * 延迟的航班集合,并计算延迟时间，将求出延迟时间填入EXCEL
      * @throws IOException
      * @throws ParseException
      */
@@ -33,22 +33,26 @@ public class Question2 {
         }
         System.out.println(delayList.size());
     }
-    public static void availableListShow() throws IOException, ParseException {
-        List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
-        for(int i=0;i<availableList.size();i++){
-            JSONObject object= (JSONObject) availableList.get(i);
-            System.out.println(object);
-        }
-        System.out.println(availableList.size());
-    }
 
     /**
-     * 展示可以节约时间的航班
+     * 获得可以作为替换的航班集合
+     * @throws IOException
+     * @throws ParseException
+     */
+    public static void availableListShow() throws IOException, ParseException {
+        List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        setByType(availableList);
+    }
+    /**
+     * 展示可以通过航班替换，减少时间延迟的航班
      * @throws IOException
      * @throws ParseException
      */
     public static void saveListShow() throws IOException, ParseException {
         List availableList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
+
+    }
+    public static void setByType(List availableList){
         Map rs=new HashMap();
         for(int i=0;i<availableList.size();i++){
             JSONObject object= (JSONObject) availableList.get(i);
@@ -73,8 +77,12 @@ public class Question2 {
                 String rowNum=object.getString("rowNum");
                 String aircraftId=object.getString("aircraftId");
                 Long saveTime=object.getLong("saveMinute");
-                System.out.println("行号:"+rowNum+"；飞机尾号:"+aircraftId+"；最大可节约时间="+saveTime);
 
+                System.out.print("行号:"+rowNum+"；飞机尾号:"+aircraftId);
+                if(saveTime!=null){
+                    System.out.print(";最大可节约时间="+saveTime);
+                }
+                System.out.println();
             }
         }
     }
@@ -122,31 +130,8 @@ public class Question2 {
 
         return replaceSchedule;
     }
-    /**
-     * 获得于21：00之后从OVS出发的航班集合
-     * @param
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-   /* public static JSONObject leave(String path,int rowNum) throws IOException, ParseException {
-        List rs=new ArrayList();
-        InputStream inputStream = new FileInputStream(path);
-        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
-        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
-
-        XSSFRow xssfRow = xssfSheet.getRow(rowNum);
-        XSSFCell start = xssfRow.getCell(3);
-
-        XSSFCell startTime = xssfRow.getCell(1);
-        String startTimeString = startTime.toString();
-        BigDecimal bd = new BigDecimal(startTimeString);
-
-        return rs;
-    }*/
-
     public static void main(String[] args) throws IOException, ParseException {
-        saveListShow();
+        availableListShow();
 
         /*List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
 
