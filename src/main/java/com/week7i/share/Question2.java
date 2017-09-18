@@ -17,75 +17,9 @@ public class Question2 {
     private static int lastRowNum=749;
     private static String path = "doc/Question2.xlsx";
 
-    /**
-     * 延迟的航班集合,并计算延迟时间，将求出延迟时间填入EXCEL
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static void delayListShow() throws IOException, ParseException {
-        List delayList=Calculate.delay(path,lastRowNum);
-        for(int i=0;i<delayList.size();i++){
-            JSONObject object= (JSONObject) delayList.get(i);
-            String delayMinute=object.getString("delayMinute");
-            Long rowNum=object.getLong("rowNum");
-            String aircraftId=object.getString("aircraftId");
-            System.out.println("第"+rowNum+"行,"+"飞机编号："+aircraftId+"，延时"+delayMinute+"分钟");
-        }
-        System.out.println(delayList.size());
-    }
 
-    /**
-     * 获得可以作为替换的航班集合
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static void availableListShow() throws IOException, ParseException {
-        List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
-        setByType(availableList);
-    }
-    /**
-     * 展示可以通过航班替换，减少时间延迟的航班
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static void saveListShow() throws IOException, ParseException {
-        List availableList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
-        setByType(availableList);
-    }
-    public static void setByType(List availableList){
-        Map rs=new HashMap();
-        for(int i=0;i<availableList.size();i++){
-            JSONObject object= (JSONObject) availableList.get(i);
-            String aircraftType=object.getString("aircraftType");
-            if(rs.containsKey(aircraftType)){
-                List list= (List) rs.get(aircraftType);
-                list.add(object);
-            }else{
-                ArrayList list=new ArrayList();
-                list.add(object);
-                rs.put(aircraftType,list);
-            }
-        }
-        Iterator<Map.Entry<String, ArrayList>> entries = rs.entrySet().iterator();
 
-        while (entries.hasNext()) {
-            Map.Entry<String, ArrayList> entry = entries.next();
-            System.out.println("飞机型号" + entry.getKey());
-            ArrayList list=entry.getValue();
-            for(int i=0;i<list.size();i++){
-                JSONObject object= (JSONObject) list.get(i);
-                String rowNum=object.getString("rowNum");
-                String aircraftId=object.getString("aircraftId");
-                Long saveTime=object.getLong("saveMinute");
 
-                System.out.print("行号:"+rowNum+"；飞机尾号:"+aircraftId);
-                if(saveTime!=null){
-                    System.out.print(";最大可节约时间="+saveTime);
-                }
-                System.out.println();
-            }
-        }
-    }
     /**
      * 从可供替换的航班集合中选择一个延时最小的航班作为替换
      * @param availableList
@@ -132,8 +66,10 @@ public class Question2 {
         return replaceSchedule;
     }
     public static void main(String[] args) throws IOException, ParseException {
+        //Calculate.delayListShow(path,lastRowNum);
         //availableListShow();
-        List availableList = Calculate.available(path, lastRowNum);
+        Calculate.saveListShow(path,lastRowNum);
+        /*List availableList = Calculate.available(path, lastRowNum);
         List saveList = Calculate.saveList(path, lastRowNum);//获得可供替换的航班集合,共计7个
         for (int i = 0; i < saveList.size(); i++) {
             JSONObject object = (JSONObject) saveList.get(i);
@@ -145,7 +81,7 @@ public class Question2 {
             System.out.print("行号：" + rowNum + "，航班：" + scheduleIdLong + "，飞机尾号：" + aircraftId + " 置换 ");
             JSONObject index = judge(availableList, startTimeLong, aircraftType);
             availableList.remove(index);
-        }
+        }*/
     }
 }
 

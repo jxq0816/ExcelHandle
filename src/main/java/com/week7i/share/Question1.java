@@ -69,19 +69,18 @@ public class Question1 {
 
         return replaceSchedule;
     }
+    public static void saveListShow() throws IOException, ParseException {
+        List availableList = Calculate.saveList(path, lastRowNum);//获得可供替换的航班集合
+        Calculate.setByAircraftType(availableList);
+    }
 
 
 
     public static void main(String[] args) throws IOException, ParseException {
-        List delayList=Calculate.delay(path,lastRowNum);
-        for(int i=0;i<delayList.size();i++){
-            JSONObject object= (JSONObject) delayList.get(i);
-            String delayMinute=object.getString("delayMinute");
-            Long rowNum=object.getLong("rowNum");
-            String aircraftId=object.getString("aircraftId");
-            System.out.println("第"+rowNum+"行,"+"飞机编号："+aircraftId+"，延时"+delayMinute+"分钟");
-        }
-        List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        //Calculate.delayListShow(path,lastRowNum);
+        //Calculate.saveListShow(path,lastRowNum);
+        Calculate.availableListShow(path,lastRowNum);
+        /*List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
         //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
         long startTimeStamp=1461358200L;
         System.out.print("174773460航班 飞机尾号14098置换");
@@ -106,7 +105,7 @@ public class Question1 {
         System.out.print("174774048航班 飞机尾号85098置换");
         startTimeStamp=1461354300L;
         index=judge(availableList,startTimeStamp);
-        availableList.remove(index);
+        availableList.remove(index);*/
     }
 }
 
