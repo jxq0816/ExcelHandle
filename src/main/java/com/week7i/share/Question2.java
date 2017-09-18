@@ -11,8 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Question2 {
     private static int lastRowNum=749;
@@ -50,14 +49,34 @@ public class Question2 {
      */
     public static void saveListShow() throws IOException, ParseException {
         List availableList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        Map rs=new HashMap();
         for(int i=0;i<availableList.size();i++){
             JSONObject object= (JSONObject) availableList.get(i);
-            String rowNum=object.getString("rowNum");
-            Long saveTime=object.getLong("saveMinute");
             String aircraftType=object.getString("aircraftType");
-            System.out.println("行号:"+rowNum+";飞机型号:"+aircraftType+"最大可节约时间="+saveTime);
+            if(rs.containsKey(aircraftType)){
+                List list= (List) rs.get(aircraftType);
+                list.add(object);
+            }else{
+                ArrayList list=new ArrayList();
+                list.add(object);
+                rs.put(aircraftType,list);
+            }
         }
-        System.out.println(availableList.size());
+        Iterator<Map.Entry<String, ArrayList>> entries = rs.entrySet().iterator();
+
+        while (entries.hasNext()) {
+            Map.Entry<String, ArrayList> entry = entries.next();
+            System.out.println("飞机型号" + entry.getKey());
+            ArrayList list=entry.getValue();
+            for(int i=0;i<list.size();i++){
+                JSONObject object= (JSONObject) list.get(i);
+                String rowNum=object.getString("rowNum");
+                String aircraftId=object.getString("aircraftId");
+                Long saveTime=object.getLong("saveMinute");
+                System.out.println("行号:"+rowNum+"；飞机尾号:"+aircraftId+"；最大可节约时间="+saveTime);
+
+            }
+        }
     }
     /**
      * 从可供替换的航班集合中选择一个延时最小的航班作为替换
