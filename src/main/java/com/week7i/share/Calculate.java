@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Calculate {
-    private static Long timestamp2100=1461358800L;//21：00的时间戳
-    private static Long timestamp1800=1461348000L;//18：00的时间戳
-    private static Long timestamp2145= timestamp2100+45*60;//21：45的时间戳,前一航班到达时间与后一航班起飞时间之间的最小间隔时间为45分钟
+    public static Long timestamp2100=1461358800L;//21：00的时间戳
+    public static Long timestamp1800=1461348000L;//18：00的时间戳
+    public static Long timestamp2145= timestamp2100+45*60;//21：45的时间戳,前一航班到达时间与后一航班起飞时间之间的最小间隔时间为45分钟
     /**
      * 获得于18:00之前到达OVS的航班集合
      * @param path
@@ -143,50 +143,7 @@ public class Calculate {
         }
         return rs;
     }
-    /**
-     * 从可供替换的航班集合中选择一个延时最小的航班作为替换
-     * @param availableList
-     * @param startTimeStamp
-     */
-    public static JSONObject judge(List availableList,long startTimeStamp){
 
-        Long min=0L;
-        int index=0;
-        for(int i=0;i<availableList.size();i++){
-            JSONObject schedule=(JSONObject)availableList.get(i);//遍历可供替换的航班B
-            Long startTime=schedule.getLong("startTimeLong");//起飞时间
-            //Long aircraftId=schedule.getLong("aircraftId");//起飞时间
-            Long stayTimeSum=0L;//总延时
-            long diffA=0L;
-            if(timestamp2100>startTimeStamp){
-                diffA=(timestamp2100-startTimeStamp);
-            }
-            stayTimeSum+=diffA;//A航班的延迟 计入 总延时
-            if(startTime<timestamp2145){//B航班有延迟
-                long diff=timestamp2145-startTimeStamp;//B航班的延迟
-                stayTimeSum+=diff;
-            }
-            System.out.println("航班："+schedule);
-            System.out.println("延时"+stayTimeSum);
-            if(i==0){
-                min=stayTimeSum;
-            }else if(stayTimeSum<min){
-                System.out.println();
-                min=stayTimeSum;
-                index=i;//选择第i个航班作为替换
-            }
-        }
-        JSONObject replaceSchedule=(JSONObject)availableList.get(index);//选择延时最小的航班作为替换
-        String aircraftId=replaceSchedule.getString("aircraftId");
-        System.out.println("飞机尾号"+aircraftId+",");
-        Long hour= (min/(60*60));
-        Long mod=min%(60*60);//余数
-        Long minus=mod/60;//分钟
-        Long modSecond=mod%(60);
-        //System.out.println("延误时间:"+min+"秒");
-        System.out.println("最小延误时间:"+hour+"小时"+minus+"分钟"+modSecond+"秒");
-        return replaceSchedule;
-    }
     /**
      * 受到影响的航班集合
      * @param path
