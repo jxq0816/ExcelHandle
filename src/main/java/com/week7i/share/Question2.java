@@ -23,7 +23,7 @@ public class Question2 {
      * @throws IOException
      * @throws ParseException
      */
-    public static void DelayListShow() throws IOException, ParseException {
+    public static void delayListShow() throws IOException, ParseException {
         List delayList=Calculate.delay(path,lastRowNum);
         for(int i=0;i<delayList.size();i++){
             JSONObject object= (JSONObject) delayList.get(i);
@@ -36,6 +36,20 @@ public class Question2 {
     }
     public static void availableListShow() throws IOException, ParseException {
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        for(int i=0;i<availableList.size();i++){
+            JSONObject object= (JSONObject) availableList.get(i);
+            System.out.println(object);
+        }
+        System.out.println(availableList.size());
+    }
+
+    /**
+     * 展示可以节约时间的航班
+     * @throws IOException
+     * @throws ParseException
+     */
+    public static void saveListShow() throws IOException, ParseException {
+        List availableList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
         for(int i=0;i<availableList.size();i++){
             JSONObject object= (JSONObject) availableList.get(i);
             System.out.println(object);
@@ -110,9 +124,9 @@ public class Question2 {
     }*/
 
     public static void main(String[] args) throws IOException, ParseException {
-        availableListShow();
+        saveListShow();
 
-        List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        /*List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
 
         //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
         System.out.print("174773460航班，飞机尾号14098置换");
@@ -172,7 +186,7 @@ public class Question2 {
         //处理439行数据
         System.out.print("174773382航班，飞机尾号RZBPV置换");
         index=judge(availableList,1461353400,"320");
-        availableList.remove(index);
+        availableList.remove(index);*/
     }
 }
 

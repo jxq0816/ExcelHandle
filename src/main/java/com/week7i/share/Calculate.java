@@ -164,7 +164,7 @@ public class Calculate {
         //处理当前页，循环读取每一行
         for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
             XSSFRow xssfRow = xssfSheet.getRow(rowNum);
-            XSSFCell destination = xssfRow.getCell(4);//到达机场
+            XSSFCell destination = xssfRow.getCell(4);//到达机场，只能延迟
             String cellData = destination.toString();
             if (cellData.equals("OVS")) {
                 XSSFCell endTime = xssfRow.getCell(2);//到达时间
@@ -177,7 +177,7 @@ public class Calculate {
                 }
                 continue;
             }
-            XSSFCell leave = xssfRow.getCell(3);//起飞机场
+            XSSFCell leave = xssfRow.getCell(3);//起飞机场,对于从OVS起飞的航班才有替换的情况
             String leaveCellData = leave.toString();
             if (leaveCellData.equals("OVS")) {
                 XSSFCell startTime = xssfRow.getCell(1);//起飞时间
@@ -187,6 +187,46 @@ public class Calculate {
                 if (leaveTimeLong>timestamp1800 && leaveTimeLong < timestamp2100) {
                     Long delayMinute=(timestamp2100-leaveTimeLong)/60;//延迟时间,以分钟为单位
                     result = addDelayToResult(xssfRow, rowNum, delayMinute,result);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 查询可以替换，可以节约时间的航班
+     * @param path
+     * @param lastRowNum
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
+    public static List saveList(String path,int lastRowNum) throws IOException, ParseException {
+        List result = new ArrayList();
+        InputStream inputStream = new FileInputStream(path);
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+
+        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
+
+        //处理当前页，循环读取每一行
+        for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
+            XSSFRow xssfRow = xssfSheet.getRow(rowNum);
+            XSSFCell leave = xssfRow.getCell(3);//起飞机场,对于从OVS起飞的航班才有替换的情况
+            String leaveCellData = leave.toString();
+            if (leaveCellData.equals("OVS")) {
+                XSSFCell startTime = xssfRow.getCell(1);//起飞时间
+                String startTimeString = startTime.toString();
+                BigDecimal bd = new BigDecimal(startTimeString);
+                Long leaveTimeLong = Long.parseLong(bd.toPlainString());
+                if (leaveTimeLong > timestamp1800 && leaveTimeLong < timestamp2145) {
+                    Long saveMinute;
+                    if(leaveTimeLong>timestamp2100){
+                        saveMinute=(timestamp2145-leaveTimeLong)/60;//可节约时间,以分钟为单位
+                    }else{
+                        saveMinute=(timestamp2145-timestamp2100)/60;
+                    }
+                    result = addSaveToResult(xssfRow, rowNum, saveMinute,result);//可节约时间的集合
+                    //System.out.println(result);
                 }
             }
         }
@@ -224,6 +264,42 @@ public class Calculate {
         obj.put("startTimeLong",startTimeLong);//起飞时间
         obj.put("aircraftType",aircraftType);//飞机机型
         obj.put("delayMinute",delayMinute);//延时
+        rs.add(obj);
+        return rs;
+    }
+
+    /**
+     * 添加可以节约时间的航班
+     * @param xssfRow
+     * @param rowNum
+     * @param saveMinute
+     * @param rs
+     * @return
+     */
+    public static List addSaveToResult(XSSFRow xssfRow,int rowNum,Long saveMinute,List rs){
+        XSSFCell aircraft = xssfRow.getCell(6);//飞机尾号
+        String aircraftId = aircraft.toString();
+
+        XSSFCell aircraftTypeCell = xssfRow.getCell(5);//飞机型号
+        String aircraftType = aircraftTypeCell.toString();
+
+        XSSFCell schedule = xssfRow.getCell(0);//航班编号
+        String scheduleId = schedule.toString();
+        BigDecimal bigDecimal = new BigDecimal(scheduleId);
+        Long  scheduleIdLong= Long.parseLong(bigDecimal.toPlainString());
+
+        XSSFCell startTime = xssfRow.getCell(1);//起飞时间
+        String startTimeStr = startTime.toString();
+        BigDecimal startTimeBD = new BigDecimal(startTimeStr);
+        Long  startTimeLong= Long.parseLong(startTimeBD.toPlainString());
+
+        JSONObject obj=new JSONObject();
+        obj.put("rowNum",rowNum+1);
+        obj.put("scheduleIdLong",scheduleIdLong);//航班编号
+        obj.put("aircraftId",aircraftId);//飞机尾号
+        obj.put("startTimeLong",startTimeLong);//起飞时间
+        obj.put("aircraftType",aircraftType);//飞机机型
+        obj.put("saveMinute",saveMinute);//可以节约的时间
         rs.add(obj);
         return rs;
     }
