@@ -52,7 +52,10 @@ public class Question2 {
         List availableList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
         for(int i=0;i<availableList.size();i++){
             JSONObject object= (JSONObject) availableList.get(i);
-            System.out.println(object);
+            String rowNum=object.getString("rowNum");
+            Long saveTime=object.getLong("saveMinute");
+            String aircraftType=object.getString("aircraftType");
+            System.out.println("行号:"+rowNum+";飞机型号:"+aircraftType+"最大可节约时间="+saveTime);
         }
         System.out.println(availableList.size());
     }

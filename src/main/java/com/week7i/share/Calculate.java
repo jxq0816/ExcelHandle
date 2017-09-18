@@ -209,24 +209,36 @@ public class Calculate {
         XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
 
         //处理当前页，循环读取每一行
-        for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
-            XSSFRow xssfRow = xssfSheet.getRow(rowNum);
-            XSSFCell leave = xssfRow.getCell(3);//起飞机场,对于从OVS起飞的航班才有替换的情况
-            String leaveCellData = leave.toString();
-            if (leaveCellData.equals("OVS")) {
-                XSSFCell startTime = xssfRow.getCell(1);//起飞时间
-                String startTimeString = startTime.toString();
-                BigDecimal bd = new BigDecimal(startTimeString);
-                Long leaveTimeLong = Long.parseLong(bd.toPlainString());
-                if (leaveTimeLong > timestamp1800 && leaveTimeLong < timestamp2145) {
-                    Long saveMinute;
-                    if(leaveTimeLong>timestamp2100){
-                        saveMinute=(timestamp2145-leaveTimeLong)/60;//可节约时间,以分钟为单位
-                    }else{
-                        saveMinute=(timestamp2145-timestamp2100)/60;
+        for (int rowNum = 2; rowNum <=lastRowNum ; rowNum++) {
+            XSSFRow xssfRowBefore = xssfSheet.getRow(rowNum-1);
+            XSSFCell arrive = xssfRowBefore.getCell(4);//上一行到达机场必须是OVS
+            String arriveCellData = arrive.toString();
+
+            XSSFCell arriveTimeCell = xssfRowBefore.getCell(2);//上一行到达机场必须是OVS
+            String arriveTimeCellData = arriveTimeCell.toString();
+            BigDecimal arriveTimeBd = new BigDecimal(arriveTimeCellData);
+            Long arriveTimeLong = Long.parseLong(arriveTimeBd.toPlainString());
+
+            if("OVS".equals(arriveCellData)&&(arriveTimeLong>timestamp1800)&&(arriveTimeLong<timestamp2100)){
+                XSSFRow xssfRow = xssfSheet.getRow(rowNum);
+                XSSFCell leave = xssfRow.getCell(3);//起飞机场,对于从OVS起飞的航班才有替换的情况
+                String leaveCellData = leave.toString();
+
+                if (leaveCellData.equals("OVS")) {
+                    XSSFCell startTime = xssfRow.getCell(1);//起飞时间
+                    String startTimeString = startTime.toString();
+                    BigDecimal bd = new BigDecimal(startTimeString);
+                    Long leaveTimeLong = Long.parseLong(bd.toPlainString());
+                    if (leaveTimeLong > timestamp1800 && leaveTimeLong < timestamp2145) {
+                        Long saveMinute;
+                        if(leaveTimeLong>timestamp2100){
+                            saveMinute=(timestamp2145-leaveTimeLong)/60;//可节约时间,以分钟为单位
+                        }else{
+                            saveMinute=(timestamp2145-timestamp2100)/60;
+                        }
+                        result = addSaveToResult(xssfRow, rowNum, saveMinute,result);//可节约时间的集合
+                        //System.out.println(result);
                     }
-                    result = addSaveToResult(xssfRow, rowNum, saveMinute,result);//可节约时间的集合
-                    //System.out.println(result);
                 }
             }
         }
