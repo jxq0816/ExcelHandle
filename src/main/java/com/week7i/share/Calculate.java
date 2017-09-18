@@ -52,7 +52,7 @@ public class Calculate {
     }
 
     /**
-     * 获得于21：00之后从OVS出发的航班集合
+     * 获得于21：45之后从OVS出发的航班集合
      * @param path
      * @return
      * @throws IOException
@@ -77,7 +77,7 @@ public class Calculate {
                 String startTimeString = startTime.toString();
                 BigDecimal bd = new BigDecimal(startTimeString);
                 Long l = Long.parseLong(bd.toPlainString());
-                if (l > timestamp2100) {
+                if (l > timestamp2145) {
                     rs = addAccessToResult(xssfRow, rowNum, rs);
                 }
             }
