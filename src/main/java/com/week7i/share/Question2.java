@@ -50,7 +50,7 @@ public class Question2 {
      */
     public static void saveListShow() throws IOException, ParseException {
         List availableList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
-
+        setByType(availableList);
     }
     public static void setByType(List availableList){
         Map rs=new HashMap();
@@ -131,10 +131,20 @@ public class Question2 {
         return replaceSchedule;
     }
     public static void main(String[] args) throws IOException, ParseException {
-        availableListShow();
-
-        /*List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
-
+        //availableListShow();
+        List availableList=Calculate.available(path,lastRowNum);
+        List saveList=Calculate.saveList(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        for(int i=0;i< saveList.size();i++){
+            JSONObject object= (JSONObject) saveList.get(i);
+            String rowNum=object.getString("rowNum");
+            String aircraftId=object.getString("aircraftId");
+            Long scheduleIdLong=object.getLong("scheduleIdLong");
+            Long startTimeLong=object.getLong("startTimeLong");
+            String aircraftType=object.getString("aircraftType");
+            System.out.print("行号："+rowNum+"，航班："+scheduleIdLong+"，飞机尾号"+aircraftId+"置换");
+            JSONObject index=judge(availableList,startTimeLong,aircraftType);
+        }
+/*
         //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
         System.out.print("174773460航班，飞机尾号14098置换");
         JSONObject index=judge(availableList,1461358200,"9");
