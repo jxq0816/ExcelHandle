@@ -221,9 +221,9 @@ public class Calculate {
         obj.put("rowNum",rowNum+1);
         obj.put("scheduleIdLong",scheduleIdLong);//航班编号
         obj.put("aircraftId",aircraftId);//飞机尾号
-        obj.put("startTimeLong",startTimeLong);//飞机尾号
-        obj.put("aircraftType",aircraftType);//飞机尾号
-        obj.put("delayMinute",delayMinute);//飞机尾号
+        obj.put("startTimeLong",startTimeLong);//起飞时间
+        obj.put("aircraftType",aircraftType);//飞机机型
+        obj.put("delayMinute",delayMinute);//延时
         rs.add(obj);
         return rs;
     }

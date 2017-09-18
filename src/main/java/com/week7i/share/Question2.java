@@ -34,7 +34,10 @@ public class Question2 {
         List delayList=Calculate.delay(path,lastRowNum);
         for(int i=0;i<delayList.size();i++){
             JSONObject object= (JSONObject) delayList.get(i);
-            System.out.println(object);
+            String delayMinute=object.getString("delayMinute");
+            Long rowNum=object.getLong("rowNum");
+            String aircraftId=object.getString("aircraftId");
+            System.out.println("第"+rowNum+"行,"+"飞机编号："+aircraftId+"，延时"+delayMinute+"分钟");
         }
         System.out.println(delayList.size());
     }
