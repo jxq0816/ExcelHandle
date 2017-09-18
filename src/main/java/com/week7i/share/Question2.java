@@ -27,9 +27,9 @@ public class Question2 {
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
         for(int i=0;i<availableList.size();i++){
             JSONObject object= (JSONObject) availableList.get(i);
-            System.out.println(object);
+            //System.out.println(object);
         }
-        System.out.println(availableList.size());
+        //System.out.println(availableList.size());
 
         List delayList=Calculate.delay(path,lastRowNum);
         for(int i=0;i<delayList.size();i++){
@@ -90,26 +90,26 @@ public class Question2 {
         step1();
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
         //处理35行数据，即174773460次航班,起飞时间戳为1461358200，飞机尾号14098
-        System.out.print("174773460航班 飞机尾号14098置换");
+        System.out.print("174773460航班，飞机尾号14098置换");
         JSONObject index=judge(availableList,1461358200,"9");
         availableList.remove(index);
 
         //处理42行数据，即174774204次航班,起飞时间戳为1461359100,飞机尾号44098
-        System.out.print("174774204航班 飞机尾号44098置换");
+        System.out.print("174774204航班，飞机尾号44098置换");
         index=judge(availableList,1461359100L,"9");
         availableList.remove(index);
 
         //处理51行数据，即174773432次航班,起飞时间戳为1461358200,飞机尾号64098
-        System.out.print("174773432航班 飞机尾号64098置换");
+        System.out.print("174773432航班，飞机尾号64098置换");
         index=judge(availableList,1461358200L,"9");
         availableList.remove(index);
         //处理59行数据，即174774076次航班,起飞时间戳为1461355500,飞机尾号15098
-        System.out.print("174774076航班 飞机尾号15098置换");
+        System.out.print("174774076航班，飞机尾号15098置换");
 
         index=judge(availableList,1461355500L,"9");
         availableList.remove(index);
         //处理69行数据，即174774048次航班,起飞时间戳为1461354300,飞机尾号85098
-        System.out.print("174774048航班 飞机尾号85098置换");
+        System.out.print("174774048航班，飞机尾号85098置换");
 
         index=judge(availableList,1461354300L,"9");
         availableList.remove(index);
