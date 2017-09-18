@@ -99,6 +99,9 @@ public class Calculate {
         XSSFCell aircraft = xssfRow.getCell(6);//飞机尾号
         String aircraftId = aircraft.toString();
 
+        XSSFCell aircraftTypeCell = xssfRow.getCell(5);//飞机型号
+        String aircraftType = aircraftTypeCell.toString();
+
         XSSFCell schedule = xssfRow.getCell(0);//航班编号
         String scheduleId = schedule.toString();
         BigDecimal bigDecimal = new BigDecimal(scheduleId);
@@ -114,6 +117,7 @@ public class Calculate {
         obj.put("scheduleIdLong",scheduleIdLong);//航班编号
         obj.put("aircraftId",aircraftId);//飞机尾号
         obj.put("startTimeLong",startTimeLong);//飞机尾号
+        obj.put("aircraftType",aircraftType);//飞机尾号
         rs.add(obj);
         return rs;
     }
