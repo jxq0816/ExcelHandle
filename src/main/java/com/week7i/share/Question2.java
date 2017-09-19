@@ -41,10 +41,10 @@ public class Question2 {
                 diffA=(Calculate.timestamp2100-startTimeStamp);
             }
             stayTimeSum+=diffA;//A航班的延迟 计入 总延时
-            /*if(startTime<Calculate.timestamp2145){//B航班有延迟
+            if(startTime<Calculate.timestamp2145){//B航班有延迟
                 long diff=Calculate.timestamp2145-startTimeStamp;//B航班的延迟
                 stayTimeSum+=diff;
-            }*/
+            }
             //System.out.println("航班："+schedule);
             //System.out.println("延时"+stayTimeSum/60+"分钟");
             if(i==0){
@@ -60,12 +60,12 @@ public class Question2 {
         String aircraftId=replaceSchedule.getString("aircraftId");
         String rowNum=replaceSchedule.getString("rowNum");
         System.out.print("第"+rowNum+"行，飞机尾号: "+aircraftId+",机型："+minAircraftType);
-        System.out.println("延迟为:"+min/60+"分钟");
+        System.out.println(" 延迟为:"+min/60+"分钟");
 
         return replaceSchedule;
     }
     public static void finalResult() throws IOException, ParseException {
-        List availableList = Calculate.available(path, lastRowNum);
+        List availableList = Calculate.availableList(path, lastRowNum);
         List saveList = Calculate.saveList(path, lastRowNum);
         for (int i = 0; i < saveList.size(); i++) {
             JSONObject object = (JSONObject) saveList.get(i);
@@ -81,9 +81,10 @@ public class Question2 {
     }
     public static void main(String[] args) throws IOException, ParseException {
         //Calculate.delayListShow(path,lastRowNum);
-        //Calculate.availableListShow(path,lastRowNum);
+        Calculate.availableListShow(path,lastRowNum);
         //Calculate.saveListShow(path,lastRowNum);
-        finalResult();
+        //finalResult();
+        //Calculate.fiveMinuteLimit("doc/C10038019.xlsx",lastRowNum);
     }
 }
 

@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -17,71 +18,46 @@ public class Calculate {
     public static Long timestamp2100=1461358800L;//21：00的时间戳
     public static Long timestamp1800=1461348000L;//18：00的时间戳
     public static Long timestamp2145= timestamp2100+45*60;//21：45的时间戳,前一航班到达时间与后一航班起飞时间之间的最小间隔时间为45分钟
-    /**
-     * 获得于18:00之前到达OVS的航班集合
-     * @param path
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static List arrive(String path,int lastRowNum) throws IOException, ParseException {
+
+    public static List availableList(String path,int lastRowNum) throws IOException, ParseException {
         List result = new ArrayList();
         InputStream inputStream = new FileInputStream(path);
         XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
 
         XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
 
-        //处理当前页，循环读取每一行x
-        for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
+        //处理当前页，循环读取每一行
+        for (int rowNum = 2; rowNum <=lastRowNum ; rowNum++) {
+            XSSFRow xssfRowBefore = xssfSheet.getRow(rowNum-1);
+            XSSFCell arrive = xssfRowBefore.getCell(4);//上一行到达机场必须是OVS
+            String arriveCellData = arrive.toString();
+
+            XSSFCell arriveTimeCell = xssfRowBefore.getCell(2);//降落时间必须是18点之前
+            String arriveTimeCellData = arriveTimeCell.toString();
+            BigDecimal arriveTimeBd = new BigDecimal(arriveTimeCellData);
+            Long arriveTimeLong = Long.parseLong(arriveTimeBd.toPlainString());
+
+
             XSSFRow xssfRow = xssfSheet.getRow(rowNum);
-            boolean b1 = false;//到达OVS
-            XSSFCell destination = xssfRow.getCell(4);
-            String cellData = destination.toString();
-            if (cellData.equals("OVS")) {
-                XSSFCell endTime = xssfRow.getCell(2);
-                String endTimeString = endTime.toString();
-                BigDecimal bd = new BigDecimal(endTimeString);
-                Long l = Long.parseLong(bd.toPlainString());
-                if (l < timestamp1800) {
-                    result = addAccessToResult(xssfRow, rowNum, result);
+
+            XSSFCell leaveCell = xssfRow.getCell(3);//起飞机场必须是OVS
+            String leaveCellData = leaveCell.toString();
+
+            XSSFCell leaveTimeCell = xssfRow.getCell(1);//起飞时间必须是21：45之后
+            String leaveTimeCellData = leaveTimeCell.toString();
+            BigDecimal leaveTimeCellBd = new BigDecimal(leaveTimeCellData);
+            Long leaveTimeCellLong = Long.parseLong(leaveTimeCellBd.toPlainString());
+
+
+            if("OVS".equals(arriveCellData)&&"OVS".equals(leaveCellData)){
+                if((arriveTimeLong<=timestamp1800)){
+                    if(leaveTimeCellLong>=timestamp2100){
+                        result = addAccessToResult(xssfRow, rowNum, result);
+                    }
                 }
             }
         }
         return result;
-    }
-
-    /**
-     * 获得于21：45之后从OVS出发的航班集合
-     * @param path
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static List leave(String path,int lastRowNum) throws IOException, ParseException {
-        List rs=new ArrayList();
-        InputStream inputStream = new FileInputStream(path);
-        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
-        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
-        //处理当前页，循环读取每一行
-        for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
-            XSSFRow xssfRow = xssfSheet.getRow(rowNum);
-            boolean b1 = false;//从OVS出发
-            XSSFCell start = xssfRow.getCell(3);
-            String cellData = start.toString();
-            if (start == null) {
-                continue;
-            }
-            if (cellData.equals("OVS")) {
-                XSSFCell startTime = xssfRow.getCell(1);
-                String startTimeString = startTime.toString();
-                BigDecimal bd = new BigDecimal(startTimeString);
-                Long l = Long.parseLong(bd.toPlainString());
-                if (l > timestamp2145) {
-                    rs = addAccessToResult(xssfRow, rowNum, rs);
-                }
-            }
-        }
-        return rs;
     }
 
     /**
@@ -115,34 +91,6 @@ public class Calculate {
         obj.put("startTimeLong",startTimeLong);//飞机尾号
         obj.put("aircraftType",aircraftType);//飞机尾号
         rs.add(obj);
-        return rs;
-    }
-
-
-
-    /**
-     * 获得可供替换的航班集合
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static List available(String path,int lastRowNum) throws IOException, ParseException {
-        List rs=new ArrayList();
-        List arriveList=arrive(path,lastRowNum);//已到达OVS机场
-        List leaveList=leave(path,lastRowNum);//有要飞行的任务
-        for(int i=0;i<arriveList.size();i++){
-            JSONObject arriveJson= (JSONObject) arriveList.get(i);
-            String arriveId=arriveJson.getString("aircraftId");//OVS机场有飞机arriveId停留
-            for(int j=0;j<leaveList.size();j++){
-                JSONObject leavejson= (JSONObject) leaveList.get(j);
-                String leaveId=leavejson.getString("aircraftId");//飞机arriveId有待飞行的任务
-                if(arriveId.equals(leaveId)){
-                    //System.out.println(leavejson);
-                    rs.add(leavejson);
-                    break;
-                }
-            }
-        }
         return rs;
     }
 
@@ -351,9 +299,7 @@ public class Calculate {
                 if(saveTime!=null){
                     System.out.print(";最大可优化="+saveTime+"分钟");
                 }
-                if(i%2==1){
-                    System.out.println();
-                }
+                System.out.println();
             }
             System.out.println();
 
@@ -390,8 +336,44 @@ public class Calculate {
      * @throws ParseException
      */
     public static void availableListShow(String path,int lastRowNum) throws IOException, ParseException {
-        List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
+        List availableList=Calculate.availableList(path,lastRowNum);//获得可供替换的航班集合,共计7个
         Calculate.setByAircraftType(availableList);
+    }
+
+    /**
+     *5分钟起停5辆的限制
+     * @param path
+     * @param lastRowNum
+     */
+    public static void fiveMinuteLimit(String path,int lastRowNum) throws IOException {
+        Long start=timestamp2100;
+        Long end=timestamp2145+24*60*60;
+        InputStream inputStream = new FileInputStream(path);
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(1);
+
+        for(long i=start;i<=end;i+=(5*60)){
+            //处理当前页，循环读取每一行
+            int cnt=0;
+            for (int rowNum = 1; rowNum <=lastRowNum ; rowNum++) {
+                XSSFRow xssfRow = xssfSheet.getRow(rowNum);
+                XSSFCell destination = xssfRow.getCell(4);//到达机场，只能延迟
+                String cellData = destination.toString();
+                if (cellData.equals("OVS")) {
+                    XSSFCell endTime = xssfRow.getCell(11);//到达时间
+                    String endTimeString = endTime.toString();
+                    Date date=new Date(endTimeString);
+                    long time=date.getTime()/1000;
+                    if (time>i && time<(i+(5*60))) {
+                        cnt++;
+                        if(cnt>5){
+                            System.out.println("超出限制");
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
