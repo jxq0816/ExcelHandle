@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.*;
 public class Question2 {
     private static int lastRowNum = 749;
     private static String path = "doc/Question2.xlsx";
+    private static int sum=0;
 
     /**
      * 从可供替换的航班集合中选择一个延时最小的航班作为替换
@@ -64,7 +66,9 @@ public class Question2 {
             String aircraftId = replaceSchedule.getString("aircraftId");
             String rowNum = replaceSchedule.getString("rowNum");
             System.out.print("第" + rowNum + "行，飞机尾号: " + aircraftId + ",机型：" + minAircraftType);
-            System.out.println(" 延迟为:" + min / 60 + "分钟");
+            System.out.println(" 航班延迟为:" + min / 60 + "分钟");
+            System.out.println();
+            sum+=(min/60);
             return replaceSchedule;
         }
         return null;
@@ -88,19 +92,28 @@ public class Question2 {
                     availableList.remove(index);
                 }
             }else{
-                System.out.println("取消");
-                continue;
+                Long diff=Calculate.timestamp2100-startTimeLong;
+                if(diff<0){
+                    diff=Calculate.timestamp2145-startTimeLong;
+                }
+                if(diff>5*24*60*60){
+                    System.out.println("失败,且延迟时间大于5个小时，取消航班");
+                }else{
+                    long wait=diff/60;
+                    System.out.println("失败,延迟航班，航班延迟为"+wait+"分钟");
+                    sum+=wait;
+                }
+                System.out.println();
             }
-
-
         }
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        //Calculate.delayListShow(path,lastRowNum);
+        Calculate.delayListShow(path,lastRowNum);
         //Calculate.availableListShow(path,lastRowNum);
-        //Calculate.saveListShow(path,lastRowNum);
-        finalResult();
+        Calculate.saveListShow(path,lastRowNum);
+        //finalResult();
+        //System.out.println("上述延迟累加为："+sum+"分钟");
         //Calculate.fiveMinuteLimit("doc/C10038019.xlsx",lastRowNum);
     }
 }

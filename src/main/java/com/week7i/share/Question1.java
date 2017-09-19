@@ -56,6 +56,9 @@ public class Question1 {
                 index=i;//选择第i个航班作为替换
             }
         }
+        if(availableList.size()==0){
+            return null;
+        }
         JSONObject replaceSchedule=(JSONObject)availableList.get(index);//选择延时最小的航班作为替换
         String aircraftId=replaceSchedule.getString("aircraftId");
         System.out.print("飞机尾号"+aircraftId+",");
@@ -85,14 +88,28 @@ public class Question1 {
             String aircraftType = object.getString("aircraftType");
             System.out.print("行号：" + rowNum + "，航班：" + scheduleIdLong + "，飞机尾号：" + aircraftId +",机型:"+aircraftType+" 置换 ");
             JSONObject index = judge(availableList, startTimeLong);
-            availableList.remove(index);
+            if(availableList!=null&&availableList.size()!=0){
+                availableList.remove(index);
+            }else{
+                Long diff=Calculate.timestamp2100-startTimeLong;
+                if(diff<0){
+                    diff=Calculate.timestamp2145-startTimeLong;
+                }
+                if(diff>5*24*60*60){
+                    System.out.println("失败,且延迟时间大于5个小时，取消航班");
+                }else{
+                    long wait=diff/60;
+                    System.out.println("失败,延迟航班，航班延迟为"+wait+"分钟");
+                }
+                System.out.println();
+            }
         }
     }
     public static void main(String[] args) throws IOException, ParseException {
-        //Calculate.delayListShow(path,lastRowNum);
+        Calculate.delayListShow(path,lastRowNum);
         //Calculate.saveListShow(path,lastRowNum);
-        Calculate.availableListShow(path,lastRowNum);
-        //finalResult();
+        //Calculate.availableListShow(path,lastRowNum);
+        finalResult();
         //Calculate.fiveMinuteLimit(path,lastRowNum);
     }
 }
