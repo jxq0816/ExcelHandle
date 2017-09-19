@@ -347,12 +347,16 @@ public class Calculate {
                 String scheduleIdLong=object.getString("scheduleIdLong");
                 Long saveTime=object.getLong("saveMinute");
 
-                System.out.print("行号:"+rowNum+"；航班号："+scheduleIdLong+"；飞机尾号:"+aircraftId);
+                System.out.print("行号:"+rowNum+"；航班号："+scheduleIdLong+"；飞机尾号:"+aircraftId+" ");
                 if(saveTime!=null){
                     System.out.print(";最大可优化="+saveTime+"分钟");
                 }
-                System.out.println();
+                if(i%2==1){
+                    System.out.println();
+                }
             }
+            System.out.println();
+
         }
     }
     /**
@@ -389,5 +393,6 @@ public class Calculate {
         List availableList=Calculate.available(path,lastRowNum);//获得可供替换的航班集合,共计7个
         Calculate.setByAircraftType(availableList);
     }
+
 }
 
