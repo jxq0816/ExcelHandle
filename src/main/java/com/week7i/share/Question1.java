@@ -89,7 +89,7 @@ public class Question1 {
         }
     }
     public static void main(String[] args) throws IOException, ParseException {
-        Calculate.delayListShow(path,lastRowNum);
+        //Calculate.delayListShow(path,lastRowNum);
         //Calculate.saveListShow(path,lastRowNum);
         Calculate.availableListShow(path,lastRowNum);
         //finalResult();
