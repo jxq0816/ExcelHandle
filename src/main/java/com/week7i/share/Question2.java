@@ -67,7 +67,7 @@ public class Question2 {
             String rowNum = replaceSchedule.getString("rowNum");
             System.out.print("第" + rowNum + "行，飞机尾号: " + aircraftId + ",机型：" + minAircraftType);
             System.out.println(" 航班延迟为:" + min / 60 + "分钟");
-            System.out.println();
+            //System.out.println();
             sum+=(min/60);
             return replaceSchedule;
         }
@@ -103,16 +103,15 @@ public class Question2 {
                     System.out.println("失败,延迟航班，航班延迟为"+wait+"分钟");
                     sum+=wait;
                 }
-                System.out.println();
             }
         }
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        Calculate.delayListShow(path,lastRowNum);
+        //Calculate.delayListShow(path,lastRowNum);
         //Calculate.availableListShow(path,lastRowNum);
-        Calculate.saveListShow(path,lastRowNum);
-        //finalResult();
+        //Calculate.saveListShow(path,lastRowNum);
+        finalResult();
         //System.out.println("上述延迟累加为："+sum+"分钟");
         //Calculate.fiveMinuteLimit("doc/C10038019.xlsx",lastRowNum);
     }

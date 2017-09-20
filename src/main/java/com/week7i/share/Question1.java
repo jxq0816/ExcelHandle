@@ -109,7 +109,7 @@ public class Question1 {
         Calculate.delayListShow(path,lastRowNum);
         //Calculate.saveListShow(path,lastRowNum);
         //Calculate.availableListShow(path,lastRowNum);
-        finalResult();
+        //finalResult();
         //Calculate.fiveMinuteLimit(path,lastRowNum);
     }
 }

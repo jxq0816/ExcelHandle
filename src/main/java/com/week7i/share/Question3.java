@@ -128,7 +128,7 @@ public class Question3 {
         //Calculate.delayListShow(path,lastRowNum);
         //Calculate.availableListShow(path,lastRowNum);
         //Calculate.saveListShow(path,lastRowNum);
-        finalResult();
+        //finalResult();
     }
 }
 
