@@ -23,6 +23,8 @@ public class ReadTxt {
 
             File file = new File(filePath);
 
+            Map cntMap=new HashMap();
+
             if (file.isFile() && file.exists()) { //判断文件是否存在
 
                 InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);//考虑到编码格式
@@ -32,14 +34,41 @@ public class ReadTxt {
                 String lineTxt = null;
 
                 while ((lineTxt=bufferedReader.readLine()) != null) {
-                    System.out.println(lineTxt);
-
+                    //System.out.println(lineTxt);
+                    lineTxt=lineTxt.substring(1,lineTxt.length()-1);
+                    String[] info = lineTxt.split(",");
+                    for(int i=0;i<info.length;i++){
+                        String a=info[i];
+                        if(cntMap.containsKey(a)){
+                            Integer count = (Integer)cntMap.get(a);
+                            count++;
+                            cntMap.put(a,count);
+                        }else{
+                            cntMap.put(a,1);
+                        }
+                    }
                 }
                 read.close();
+                List<Map.Entry<String,Integer>> list = new ArrayList<Map.Entry<String,Integer>>(cntMap.entrySet());
+                //然后通过比较器来实现排序
+                Collections.sort(list,new Comparator<Map.Entry<String,Integer>>() {
+                    //降序排序
+                    public int compare(Map.Entry<String, Integer> o1,
+                                       Map.Entry<String, Integer> o2) {
+                        return o2.getValue().compareTo(o1.getValue());
+                    }
+
+                });
+
+                for(Map.Entry<String,Integer> mapping:list){
+                    System.out.println(mapping.getKey()+":"+mapping.getValue());
+                }
+
             } else {
 
                 System.out.println("找不到指定的文件");
             }
+
 
         } catch (Exception e) {
             System.out.println("读取文件内容出错");
