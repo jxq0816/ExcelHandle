@@ -1,16 +1,9 @@
-package com.week7i.share;
+package com.week7i.share.math;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import com.week7i.share.math.Calculate;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 

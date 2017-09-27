@@ -1,6 +1,7 @@
-package com.week7i.share;
+package com.week7i.share.math;
 
 import com.alibaba.fastjson.JSONObject;
+import com.week7i.share.math.Calculate;
 
 import java.io.IOException;
 import java.text.ParseException;

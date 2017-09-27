@@ -1,4 +1,4 @@
-package com.week7i.share;
+package com.week7i.share.math;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.poi.xssf.usermodel.XSSFCell;
